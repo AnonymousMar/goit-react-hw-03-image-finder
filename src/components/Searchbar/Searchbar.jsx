@@ -1,55 +1,46 @@
 import css from './Searchbar.module.css';
-import { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 
-class Searchbar extends Component {
-    state = { query: '' };
-
-    handleChange = e => {
-        this.setState({ query: e.currentTarget.value });
+class SearchBar extends React.Component {
+    state = {
+        currentSearchQuery: '',
     };
 
-    handleSubmit = e => {
+    onSearchInputChange = e => {
+        this.setState({ currentSearchQuery: e.target.value });
+    };
+
+    onSubmitForm = e => {
         e.preventDefault();
-        this.props.onSubmit(this.state.query);
-        this.setState({ query: '' });
+
+        if (this.state.currentSearchQuery) {
+            this.props.onSubmit(this.state.currentSearchQuery);
+        }
+
+        this.setState({ currentSearchQuery: '' });
     };
 
     render() {
-        const { query } = this.state;
-
         return (
-            <header className={css.Searchbar}>
-                <form onSubmit={this.handleSubmit} className={css.SearchForm}>
-                    <button type="submit" className={css.SearchFormButton}>
-                        <span className={css.SearchFormButtonLabel}>Search</span>
+            <header className={css.searchbar}>
+                <form className={css.searchForm} onSubmit={this.onSubmitForm}>
+                    <button type="submit" className={css.searchFormButton}>
+                        <span className={css.searchFormButtonLabel}>Search</span>
                     </button>
+
                     <input
-                        onChange={this.handleChange}
-                        value={query}
-                        className={css.SearchForm}
+                        className={css.searchFormInput}
                         type="text"
                         autoComplete="off"
                         autoFocus
                         placeholder="Search images and photos"
+                        value={this.state.currentSearchQuery}
+                        onChange={this.onSearchInputChange}
                     />
-                    <button type="submit" className={css.SearchFormButton}>
-                        <span className={css.SearchFormButtonLabel}>Load more</span>
-                    </button>
                 </form>
             </header>
         );
     }
 }
 
-Searchbar.defaultProps = {
-    handleChange: () => null,
-    handleSubmit: () => null,
-};
-
-Searchbar.propTypes = {
-    handleChange: PropTypes.func,
-    handleSubmit: PropTypes.func,
-};
-
-export default Searchbar;
+export default SearchBar;

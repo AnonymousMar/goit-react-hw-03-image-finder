@@ -1,14 +1,13 @@
-import Loader, { Circles } from 'react-loader-spinner';
 import css from './Loader.module.css';
+import { BallTriangle } from 'react-loader-spinner';
 
-const Spinner= () => (
-  <Circles
-    className={css.Loader}
-    type="Circles"
-    color="blue"
-    height={80}
-    width={80}
-  />
-);
 
-export default Spinner;
+const Loader = () => {
+  return (
+    <div className={css.loaderWrapper}>
+      <BallTriangle />
+    </div>
+  );
+};
+
+export default Loader;

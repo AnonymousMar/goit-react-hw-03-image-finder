@@ -1,115 +1,105 @@
-import React,{Component} from 'react';
-
-import Searchbar from './Searchbar/Searchbar';
+import React from 'react';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { Report } from 'notiflix/build/notiflix-report-aio';
+import { fetchImages } from 'services/imagesAPI';
+import Button from './Button/Button';
 import ImageGallery from './ImageGallery/ImageGallery';
-import Spinner from './Loader/Loader';
-import ButtonLoadMore from './Button/Button';
+import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
+import SearchBar from './Searchbar/Searchbar';
 
-import pixabayApi from 'services/pixabayApi';
-
-import './App.module.css';
-
-class App extends Component {
+export class App extends React.Component {
   state = {
     images: [],
-    currentPage: 1,
-    searchQuery: '',
+    searchingTerm: '',
+    page: 1,
     isLoading: false,
-    showModal: false,
-    selectedImage: '',
+    selectedImage: null,
     error: null,
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery) {
-      this.fetchImages();
+    if (prevState.searchingTerm !== this.state.searchingTerm) {
+      this.fetchImagesBySearchingTerm();
+    }
+
+    if (prevState.page !== this.state.page) {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
+      });
     }
   }
 
-  onChangeQuery = query => {
-    if (query !== this.state.searchQuery)
-      this.setState({
-        searchQuery: query,
-        currentPage: 1,
-        images: [],
-        error: null,
-      });
-  };
+  fetchImagesBySearchingTerm = () => {
+    const { images, searchingTerm, page } = this.state;
 
-  fetchImages = () => {
-    const { searchQuery, currentPage } = this.state;
     this.setState({ isLoading: true });
 
-    pixabayApi
-      .fetchImages(searchQuery, currentPage)
-      .then(hits => {
-        this.setState(prev => ({
-          images: [...prev.images, ...hits],
-          currentPage: prev.currentPage + 1,
-        }));
-        window.scrollTo({
-          top: document.documentElement.scrollHeight,
-          behavior: 'smooth',
-        });
+    fetchImages(searchingTerm, page)
+      .then(({ hits }) => {
+        if (hits.length > 0) {
+          const fetchedImages = hits.map(image => ({
+            id: image.id,
+            webformatURL: image.webformatURL,
+            largeImageURL: image.webformatURL,
+          }));
+
+          this.setState({
+            images: [...images, ...fetchedImages],
+            page: page + 1,
+          });
+        } else {
+          Notify.failure('Images was not found :(');
+        }
       })
-      .catch(error => this.setState({ error }))
-      .finally(() => {
-        this.setState({
-          isLoading: false,
-        });
-      });
+      .catch(error => this.setState({ error: error.message }))
+      .finally(() => this.setState({ isLoading: false }));
   };
 
-  toggleModal = () => {
-    this.setState(prev => ({
-      showModal: !prev.showModal,
-    }));
+  handleFormSubmit = searchingTerm => {
+    this.setState({
+      images: [],
+      searchingTerm,
+      page: 1,
+    });
   };
 
-  showLargeImage = e => {
-    const selectImg = e.target.dataset.img;
+  setSelectedImage = image => {
+    this.setState({
+      selectedImage: image,
+    });
+  };
 
-    this.toggleModal();
-
-    selectImg &&
-      this.setState({
-        selectedImage: selectImg,
-      });
+  removeError = () => {
+    this.setState({ error: null });
   };
 
   render() {
-    const { images, showModal, error, isLoading, selectedImage } = this.state;
-    const showSpinnerWhileLoading = images.length > 0 && !isLoading;
+    const { isLoading, images, selectedImage, error } = this.state;
 
     return (
-      <>
-        {error && <h1>Error!</h1>}
-
-        <Searchbar onSubmit={this.onChangeQuery} />
-
+      <div className="app">
+        <SearchBar onSubmit={this.handleFormSubmit} />
         {images.length > 0 && (
-          <ImageGallery images={images} onSwitchModal={this.showLargeImage} />
+          <ImageGallery
+            setSelectedImage={this.setSelectedImage}
+            images={images}
+          />
         )}
-
-        {isLoading && <Spinner />}
-
-        {/* {isLoading && (
-          <Loader type="Oval" color="black" height={80} width={80} />
-        )} */}
-
-        {showSpinnerWhileLoading && (
-          <ButtonLoadMore loadMore={this.fetchImages} />
+        {isLoading && <Loader />}
+        {images.length > 0 && !isLoading && (
+          <Button action={this.fetchImagesBySearchingTerm} label="LOAD MORE" />
         )}
-
-        {showModal && (
-          <Modal onClose={this.toggleModal}>
-            <img src={selectedImage} alt="" />
-          </Modal>
+        {selectedImage && (
+          <Modal
+            closeModal={() => this.setSelectedImage(null)}
+            largeImageURL={selectedImage}
+          />
         )}
-      </>
+        {error &&
+          Report.failure('Error!', `${error}`, 'Okay', this.removeError)}
+      </div>
     );
   }
 }
-
-export default App;
