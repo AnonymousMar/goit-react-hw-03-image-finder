@@ -59,16 +59,17 @@ export class App extends React.Component {
     
   };
 
-  handleFormSubmit = searchingTerm => {
+  handleFormSubmit = searchingTerm  => {
     this.setState({
       images: [],
       searchingTerm,
       page: 1,
     });
-    if (this.setState.searchingTerm === this.handleFormSubmit)  {
-      Notify.failure('We already found images.Please, enter another phrase');  
-      return
-      }
+    if (this.state.searchingTerm === searchingTerm)  {
+      Notify.failure('We already found images. Please, enter another phrase.'); 
+       
+    }
+   // this.setState({searchingTerm: searchingTerm, images: [], page: 1})
   };
 
   setSelectedImage = image => {

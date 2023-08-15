@@ -20,18 +20,17 @@ class SearchBar extends React.Component {
        if (this.state.currentSearchQuery === '') {
            return;
        } 
-       this.props.onSubmit(this.state.currentSearchQuery.toLowerCase().trim()); 
 
-       if (this.onSubmit === this.value ) {
-           Notify.failure('We already found images. Please, enter another phrase')
-           }      
+       this.props.onSubmit(this.state.currentSearchQuery.toLowerCase().trim()); 
     }
     
     onSearchInputChange = e => {
         this.setState({ currentSearchQuery: e.target.value });
     }; 
-   
 
+     
+       
+   
     render() {
         return (
             <header className={css.searchbar}>
