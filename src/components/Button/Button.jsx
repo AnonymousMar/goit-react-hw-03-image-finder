@@ -1,5 +1,5 @@
 import css from './Button.module.css';
-
+import PropTypes from 'prop-types'
 
 const Button = ({ action, label }) => {
   return (
@@ -10,3 +10,8 @@ const Button = ({ action, label }) => {
 };
 
 export default Button;
+
+Button.propTypes = {
+  action: PropTypes.func,
+  label: PropTypes.func,
+}

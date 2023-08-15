@@ -8,4 +8,5 @@ export const fetchImages = (searchingTerm, page = 1) => {
             `https://pixabay.com/api/?q=${searchingTerm}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
         )
         .then(resp => resp.data);
+
 };

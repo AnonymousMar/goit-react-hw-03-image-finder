@@ -52,9 +52,11 @@ export class App extends React.Component {
         } else {
           Notify.failure('Images was not found :(');
         }
-      })
+      }
+      )
       .catch(error => this.setState({ error: error.message }))
       .finally(() => this.setState({ isLoading: false }));
+    
   };
 
   handleFormSubmit = searchingTerm => {
@@ -63,6 +65,10 @@ export class App extends React.Component {
       searchingTerm,
       page: 1,
     });
+    if (this.setState.searchingTerm === this.handleFormSubmit)  {
+      Notify.failure('We already found images.Please, enter another phrase');  
+      return
+      }
   };
 
   setSelectedImage = image => {
@@ -85,6 +91,7 @@ export class App extends React.Component {
           <ImageGallery
             setSelectedImage={this.setSelectedImage}
             images={images}
+            searchingTerm={this.handleFormSubmit}
           />
         )}
         {isLoading && <Loader />}
