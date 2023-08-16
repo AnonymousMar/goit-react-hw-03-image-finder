@@ -20,5 +20,5 @@ export default ImageGallery;
 
 ImageGallery.propTypes = {
   images: PropTypes.arrayOf(PropTypes.object),
-  setSelectedImage: PropTypes.func,
+  setSelectedImage: PropTypes.func.isRequired,
 }
